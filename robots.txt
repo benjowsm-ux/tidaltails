@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /thanks.html
+Disallow: /_frame.html
+
+Sitemap: https://tidaltails.uk/sitemap.xml

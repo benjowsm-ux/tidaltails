@@ -1,0 +1,13 @@
+{
+  "name": "Tidal Tails — Pet Waste Removal",
+  "short_name": "Tidal Tails",
+  "description": "Dog waste removal for Weston-super-Mare and North Somerset.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FCF7EF",
+  "theme_color": "#0D717D",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
