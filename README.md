@@ -165,11 +165,28 @@ WebP at build time rather than left live in the page — so phones never have to
 run an expensive filter just to draw a background, and the hero image is ~100KB
 instead of ~475KB as PNG.
 
+## URLs
+
+Links across the site are **extensionless** — `/pricing`, not `/pricing.html`.
+The files themselves are still `pricing.html` at the root; GitHub Pages resolves
+`/pricing` to it automatically, so nothing had to be restructured.
+
+Two things follow from that:
+
+- **Every canonical and `og:url` points at the clean form**, so if anyone lands on
+  the old `.html` address Google still treats the clean one as the real page.
+- **When you add a page**, link to it as `/new-page` and set its canonical to
+  `https://tidaltails.uk/new-page`. The file stays `new-page.html`.
+
 ## Local preview
 
 ```
-npx http-server . -p 8087 -c-1
+npx http-server . -p 8087 -c-1 --ext html
 ```
+
+`--ext html` is what makes the local server resolve `/pricing` the same way
+GitHub Pages does — without it every clean link 404s locally while working fine
+in production, which is a confusing hour to lose.
 
 Then open `http://localhost:8087`. Avoid port 5060 — Chrome blocks it outright
 (`ERR_UNSAFE_PORT`) because it's the SIP port, which will look like the server

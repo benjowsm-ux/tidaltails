@@ -64,11 +64,20 @@
       window.addEventListener('resize', () => { if (window.innerWidth > 900) setOpen(false); });
     }
 
-    /* mark the current page without hand-editing every nav */
-    const here = location.pathname.replace(/\/$/, '/index.html').split('/').pop() || 'index.html';
+    /* Mark the current page without hand-editing every nav. URLs are
+       extensionless in links but the files are still .html, and either form
+       can turn up in the address bar — so both sides get normalised. */
+    const norm = (u) => {
+      const path = (u || '').split('#')[0].split('?')[0]
+        .replace(/^https?:\/\/[^/]+/, '')
+        .replace(/\.html$/, '')
+        .replace(/\/index$/, '/')
+        .replace(/\/+$/, '');
+      return path === '' ? '/' : (path.startsWith('/') ? path : '/' + path);
+    };
+    const here = norm(location.pathname);
     $$('.nav-links a').forEach(a => {
-      const target = a.getAttribute('href');
-      if (target && target.split('#')[0] === here) a.setAttribute('aria-current', 'page');
+      if (norm(a.getAttribute('href')) === here) a.setAttribute('aria-current', 'page');
     });
   }
 
