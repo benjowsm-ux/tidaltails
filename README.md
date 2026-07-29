@@ -37,9 +37,9 @@ both tables on the Areas page and the friendly place-name list all read from it.
 2. **Testimonials.** The three on the home page are clearly labelled as
    illustrative. Swap them for real ones as soon as you have them, and delete the
    disclaimer line underneath when you do.
-3. **Insurance.** `config.js` → `trust.insured` is set to `false` and every
-   "fully insured" claim has been stripped from the site. Flip it back to `true`
-   only once cover is actually in place — and see the note below.
+3. **Insurance.** `config.js` → `trust.insured` is `true` and the site says
+   "fully insured" in the footers, the hero, About, Terms and the commercial
+   copy. If cover ever lapses, set it to `false` and take those claims out.
 
 ## The round
 
@@ -191,15 +191,7 @@ is broken when it isn't.
   cookie banner and the privacy notice can be short and honest. If you add
   analytics later you will need to revisit that page.
 
-## Two things to sort out
-
-**Insurance.** Public liability cover isn't legally required to trade, but you're
-working alone in other people's gardens, around their gates and their dogs. One
-escaped dog hit by a car, or one patio door put through with a rake handle, is a
-bill you'd be paying personally. It's roughly £60–£120 a year for a sole trader
-doing this kind of work — cheap for what it removes. Every insurance claim has
-been taken off the site until it's real; put `trust.insured` back to `true` and
-re-add the badges once you have a certificate.
+## One thing to sort out
 
 **DBS.** A check done by a previous employer belongs to that employer's decision,
 at that date — it isn't a portable certificate you can keep showing people. If

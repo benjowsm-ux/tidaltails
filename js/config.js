@@ -71,7 +71,7 @@ window.TT = {
      Only claims that are true today. The site renders nothing for a false
      flag, so this is the one switch to flip when something changes.        */
   trust: {
-    insured: false,          // ← no public liability cover yet
+    insured: true,           // public liability cover in place
     dbsChecked: true,        // clear DBS held; see README before advertising it
     vatRegistered: false,    // not mentioned on the site either way
     noContract: true

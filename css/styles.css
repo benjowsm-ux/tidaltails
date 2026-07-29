@@ -478,10 +478,33 @@ p:last-child { margin-bottom: 0; }
 .mosaic .m-tall { grid-row: span 2; }
 .mosaic .m-wide { grid-column: span 2; }
 .mosaic .m-big  { grid-column: span 2; grid-row: span 2; }
+.mosaic .m-full { grid-column: 1 / -1; }
+/* On a phone the grid works but eats most of a screen's worth of scrolling, so
+   it becomes a swipeable strip instead. Pure scroll-snap — no JS, native
+   momentum, and the next card peeking past the edge is the affordance. */
 @media (max-width: 720px) {
-  .mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
-  .mosaic .m-big { grid-column: span 2; grid-row: span 2; }
-  .mosaic .m-wide { grid-column: span 2; }
+  .mosaic {
+    display: flex; grid-template-columns: none; grid-auto-rows: auto;
+    gap: .75rem;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* bleed to the screen edges so the strip reads as continuing off-screen */
+    margin-inline: calc(var(--gutter) * -1);
+    padding: .25rem var(--gutter) .75rem;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .mosaic::-webkit-scrollbar { display: none; }
+  .mosaic figure,
+  .mosaic .m-big,
+  .mosaic .m-tall,
+  .mosaic .m-wide,
+  .mosaic .m-full {
+    grid-column: auto; grid-row: auto;
+    flex: 0 0 78%; aspect-ratio: 4 / 3; scroll-snap-align: center;
+  }
+  .mosaic figure:last-child { margin-right: 0; }
 }
 
 /* ── photo slots ──────────────────────────────────────────────────────────── */
