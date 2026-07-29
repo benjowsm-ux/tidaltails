@@ -461,6 +461,29 @@ p:last-child { margin-bottom: 0; }
 .ba-fallback strong { font-family: var(--font-display); font-size: 1rem; display: block; }
 .ba-fallback code { font-size: .78rem; opacity: .75; }
 
+/* ── photo mosaic ─────────────────────────────────────────────────────────── */
+.mosaic {
+  display: grid; gap: clamp(.7rem, 1.5vw, 1.1rem);
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: clamp(110px, 15vw, 175px);
+}
+.mosaic figure { margin: 0; position: relative; overflow: hidden; border-radius: var(--r-lg); box-shadow: var(--sh-2); background: var(--teal-50); }
+.mosaic img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease); }
+.mosaic figure:hover img { transform: scale(1.04); }
+.mosaic figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem .9rem .8rem;
+  font-family: var(--font-display); font-weight: 600; font-size: .88rem; color: #fff;
+  background: linear-gradient(transparent, rgba(7,47,53,.78));
+}
+.mosaic .m-tall { grid-row: span 2; }
+.mosaic .m-wide { grid-column: span 2; }
+.mosaic .m-big  { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 720px) {
+  .mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
+  .mosaic .m-big { grid-column: span 2; grid-row: span 2; }
+  .mosaic .m-wide { grid-column: span 2; }
+}
+
 /* ── photo slots ──────────────────────────────────────────────────────────── */
 .photo {
   position: relative; border-radius: var(--r-lg); overflow: hidden;
@@ -539,7 +562,9 @@ fieldset.qfield { border: 0; margin: 0; }
 
 input[type="range"] {
   -webkit-appearance: none; appearance: none;
-  flex: 1; height: 30px; background: transparent; cursor: pointer; margin: 0;
+  /* min-width:0 is essential — a flex item won't shrink below its intrinsic
+     width without it, and the slider then pushes the page sideways on mobile. */
+  flex: 1; min-width: 0; height: 30px; background: transparent; cursor: pointer; margin: 0;
 }
 input[type="range"]::-webkit-slider-runnable-track {
   height: 10px; border-radius: var(--r-pill);
@@ -564,20 +589,32 @@ input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.04); }
 .qticks { display: flex; justify-content: space-between; margin-top: .35rem; font-size: .78rem; color: var(--ink-faint); }
 
 /* switches */
-.qswitch { display: flex; align-items: flex-start; gap: .9rem; cursor: pointer; padding: .55rem 0; }
+/* Big enough to hit with an older thumb, and high-contrast enough that the
+   off state reads as "off" rather than as a faint smudge. */
+.qswitch {
+  display: flex; align-items: flex-start; gap: 1rem; cursor: pointer;
+  padding: .7rem .8rem; border-radius: var(--r-md);
+  transition: background .16s var(--ease);
+}
+.qswitch:hover { background: var(--teal-50); }
 .qswitch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .qswitch-track {
-  flex: none; width: 52px; height: 30px; border-radius: var(--r-pill);
-  background: var(--teal-100); position: relative; transition: background .18s var(--ease); margin-top: 2px;
+  flex: none; width: 58px; height: 34px; border-radius: var(--r-pill);
+  background: #E4EBEC; border: 2px solid #C3D4D6;
+  position: relative; margin-top: 1px;
+  transition: background .18s var(--ease), border-color .18s var(--ease);
 }
 .qswitch-track::after {
-  content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
-  border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(10,78,87,.25);
-  transition: transform .2s var(--ease-out-back);
+  content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px;
+  border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(10,78,87,.32), 0 2px 8px rgba(10,78,87,.18);
+  transition: transform .22s var(--ease-out-back);
 }
-.qswitch input:checked + .qswitch-track { background: var(--teal-600); }
-.qswitch input:checked + .qswitch-track::after { transform: translateX(22px); }
+.qswitch:hover .qswitch-track { border-color: var(--teal-300); }
+.qswitch input:checked + .qswitch-track { background: var(--teal-600); border-color: var(--teal-700); }
+.qswitch input:checked + .qswitch-track::after { transform: translateX(24px); }
 .qswitch input:focus-visible + .qswitch-track { outline: 3px solid var(--teal-600); outline-offset: 3px; }
+.qswitch:has(input:checked) .qswitch-copy strong { color: var(--teal-700); }
 .qswitch-copy strong { display: block; font-family: var(--font-display); font-size: 1rem; color: var(--teal-800); }
 .qswitch-copy small { color: var(--ink-soft); font-size: .88rem; line-height: 1.45; display: block; }
 
@@ -697,8 +734,38 @@ table.rates thead th:first-child { border-top-left-radius: var(--r-lg); }
 table.rates thead th:last-child { border-top-right-radius: var(--r-lg); }
 table.rates tbody tr:last-child td { border-bottom: 0; }
 table.rates tbody tr:nth-child(even) { background: var(--teal-50); }
-table.rates td:first-child { font-weight: 600; color: var(--teal-800); }
+table.rates td:first-child,
+table.rates th[scope="row"] { font-weight: 600; color: var(--teal-800); text-align: left; }
 table.rates td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* On a phone a four-column table is unreadable, so each row becomes a small
+   stacked card with the column heading shown inline. No sideways scrolling. */
+@media (max-width: 640px) {
+  .table-wrap { overflow-x: visible; }
+  table.rates { min-width: 0; display: block; }
+  table.rates thead { display: none; }
+  table.rates tbody { display: block; }
+  table.rates tr {
+    display: block; padding: .9rem 1.1rem;
+    border-bottom: 1px solid rgba(13,113,125,.12);
+  }
+  table.rates tr:last-child { border-bottom: 0; }
+  table.rates th[scope="row"] {
+    display: block; padding: 0 0 .5rem; border: 0;
+    font-size: 1.02rem; background: none;
+  }
+  table.rates td {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    padding: .3rem 0; border: 0;
+  }
+  table.rates td::before {
+    content: attr(data-label);
+    /* takes the slack so the figure and its "/visit" suffix stay together */
+    flex: 1; font-weight: 600; color: var(--ink-soft); font-size: .9rem;
+  }
+  table.rates td:not([data-label]) { display: block; }
+  table.rates tbody tr:nth-child(even) { background: var(--teal-50); }
+}
 
 /* ── testimonials ─────────────────────────────────────────────────────────── */
 .quote-card {

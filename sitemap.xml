@@ -9,4 +9,9 @@
   <url><loc>https://tidaltails.uk/contact.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://tidaltails.uk/privacy.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://tidaltails.uk/terms.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://tidaltails.uk/dog-waste-collection.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tidaltails.uk/one-off-garden-clear.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tidaltails.uk/holiday-lets-and-landlords.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tidaltails.uk/artificial-grass-cleaning.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tidaltails.uk/bin-cleaning.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

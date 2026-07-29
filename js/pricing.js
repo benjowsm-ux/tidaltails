@@ -63,6 +63,23 @@ const TT_RATES = {
     binClean:   { label: 'Clean out your waste bin',    desc: 'Rinsed and deodorised',                             price: 3.00 }
   },
 
+  /* ── the two ways of buying ────────────────────────────────────────────
+     "full" is us in the garden. "collect" is a lockable caddy on the customer's
+     side — they scoop, we swap it at the kerb. Far quicker per stop, so it can
+     be cheaper for them and still worth more per hour to us. */
+  serviceType: {
+    full:    { label: 'We do the scooping', desc: 'We come into the garden and clear it' },
+    collect: { label: 'You scoop, we collect', desc: 'You fill the caddy, we take it away' }
+  },
+
+  collection: {
+    /* per collection, one dog included */
+    base: { twiceWeekly: 5.5, weekly: 7.5, fortnightly: 11, monthly: 16, oneOff: 12 },
+    perExtraDog: 0.5,
+    caddy: 20,                 // one-off, or bring your own
+    minimum: 5
+  },
+
   /* Applied by hand at invoicing, as a thank-you, for customers who plainly
      need it. Deliberately NOT on the website and NOT a box anyone can tick —
      a self-declared discount just becomes the default price. */
@@ -90,6 +107,8 @@ function ttNormalise(input) {
   const pick = (map, val, fallback) => (Object.prototype.hasOwnProperty.call(map, val) ? val : fallback);
   const extras = Array.isArray(input.extras) ? input.extras : [];
   return {
+    service: pick(R.serviceType, input.service, 'full'),
+    caddy: !!input.caddy,
     garden: pick(R.garden, input.garden, 'medium'),
     dogSize: pick(R.dogSize, input.dogSize, 'medium'),
     frequency: pick(R.frequency, input.frequency, 'weekly'),
@@ -123,9 +142,44 @@ function ttQuote(rawInput) {
     recurring: freq.recurring,
     frequencyLabel: freq.label,
     visitsPerMonth: freq.visitsPerMonth,
+    service: input.service,
     lines,
     input
   };
+
+  /* ── caddy collection ────────────────────────────────────────────────
+     No garden to walk, no backlog to price — it's a swap at the kerb. */
+  if (input.service === 'collect') {
+    const C = R.collection;
+    lines.push({
+      label: `${freq.label} collection`,
+      amount: ttRound(C.base[input.frequency] ?? C.base.weekly)
+    });
+    if (dogs > 1) {
+      lines.push({ label: `${dogs - 1} extra dog${dogs - 1 > 1 ? 's' : ''}`, amount: ttRound(C.perExtraDog * (dogs - 1)) });
+    }
+    if (input.extras.includes('binClean')) {
+      lines.push({ label: R.extras.binClean.label, amount: ttRound(R.extras.binClean.price) });
+    }
+
+    const per = Math.max(lines.reduce((s, l) => s + l.amount, 0), C.minimum);
+    const caddy = input.caddy ? C.caddy : 0;
+
+    result.perVisit = per;
+    result.perMonth = freq.recurring ? ttRound(per * freq.visitsPerMonth) : 0;
+    result.firstVisitExtra = caddy;
+    result.firstPayment = ttRound(per + caddy);
+    result.headline = per;
+    result.headlineUnit = 'per collection';
+    result.subline = freq.recurring
+      ? `${ttMoney(result.perMonth)} a month · you scoop, we take it away`
+      : 'One collection — nothing recurring';
+    if (caddy) result.caddyNote = `Includes a ${ttMoney(caddy)} lockable caddy, yours to keep.`;
+
+    result.total = result.firstPayment;
+    result.fingerprint = ttFingerprint(input, result.total);
+    return result;
+  }
 
   if (freq.recurring) {
     /* Each line is rounded first and the total is the sum of those rounded
@@ -179,8 +233,8 @@ function ttQuote(rawInput) {
    travel with the quote, so the price can always be recomputed.            */
 function ttFingerprint(input, total) {
   const canonical = [
-    TT_RATES_VERSION, input.garden, input.dogs, input.dogSize,
-    input.frequency, input.backlog, input.extras.join('+'), total.toFixed(2)
+    TT_RATES_VERSION, input.service, input.caddy ? 'c' : '-', input.garden, input.dogs,
+    input.dogSize, input.frequency, input.backlog, input.extras.join('+'), total.toFixed(2)
   ].join('|');
   let h = 0x811c9dc5;
   for (let i = 0; i < canonical.length; i++) {
@@ -216,13 +270,26 @@ function ttQuoteSummary(input, quote) {
   const i = quote.input || ttNormalise(input);
   const extras = i.extras.map(k => R.extras[k].label);
 
-  const rows = [
+  const rows = [['Service', R.serviceType[i.service].label]];
+
+  if (i.service === 'collect') {
+    rows.push(['Dogs', String(i.dogs)]);
+    rows.push(['Frequency', quote.frequencyLabel]);
+    rows.push(['Caddy', i.caddy ? 'Supplied by us' : 'Customer has their own']);
+    rows.push(['Per collection', ttMoney(quote.perVisit)]);
+    if (quote.recurring) rows.push(['Estimated monthly', ttMoney(quote.perMonth)]);
+    if (quote.firstVisitExtra > 0) rows.push(['First payment', ttMoney(quote.firstPayment) + ' (includes caddy)']);
+    rows.push(['Quote ref', quote.fingerprint + '/' + TT_RATES_VERSION]);
+    return rows;
+  }
+
+  rows.push(
     ['Garden size',  R.garden[i.garden].label],
     ['Dogs',         `${i.dogs} × ${R.dogSize[i.dogSize].label.toLowerCase()}`],
     ['Frequency',    quote.frequencyLabel],
     ['Last cleared', R.backlog[i.backlog].label],
     ['Extras',       extras.length ? extras.join(', ') : 'None']
-  ];
+  );
 
   if (quote.recurring) {
     rows.push(['Price per visit', ttMoney(quote.perVisit)]);

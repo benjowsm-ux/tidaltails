@@ -94,6 +94,15 @@
         <div class="quote-panel">
           <form id="quoteForm" onsubmit="return false">
 
+            <fieldset class="qfield" style="padding-top:.25rem">
+              <legend>Which suits you better?</legend>
+              <p class="qhint">Most people have us do it. If you don't mind scooping but hate storing it, the caddy works out cheaper.</p>
+              <div class="qchips">
+                <label class="qchip qchip--wide"><input type="radio" name="service" value="full" checked><span>We do the scooping<small>We come into the garden and clear it</small></span></label>
+                <label class="qchip qchip--wide"><input type="radio" name="service" value="collect"><span>You scoop, we collect<small>Fill the caddy, we swap it at the kerb</small></span></label>
+              </div>
+            </fieldset>
+
             <div class="qfield">
               <span class="qlabel">How many dogs use the garden?</span>
               <p class="qhint">Visiting dogs count too, if they’re there most days.</p>
@@ -104,7 +113,7 @@
               <div class="qticks"><span>1</span><span>6+</span></div>
             </div>
 
-            <fieldset class="qfield">
+            <fieldset class="qfield" data-mode="full">
               <legend>What size are they?</legend>
               <p class="qhint">If they’re a mix, pick the biggest one.</p>
               <div class="qchips">
@@ -114,7 +123,7 @@
               </div>
             </fieldset>
 
-            <fieldset class="qfield">
+            <fieldset class="qfield" data-mode="full">
               <legend>How big is the area we’d be covering?</legend>
               <p class="qhint">A rough guess is fine — we’ll confirm it on the first visit and tell you if it changes anything.</p>
               <div class="qchips">
@@ -138,7 +147,7 @@
               </div>
             </fieldset>
 
-            <fieldset class="qfield">
+            <fieldset class="qfield" data-mode="full">
               <legend>When was it last properly cleared?</legend>
               <p class="qhint">Be honest — this only affects the first visit, and we have genuinely seen worse.</p>
               <div class="qchips">
@@ -150,7 +159,7 @@
               </div>
             </fieldset>
 
-            <fieldset class="qfield">
+            <fieldset class="qfield" data-mode="full">
               <legend>Anything else while we’re there?</legend>
               <p class="qhint">All optional. Add or drop them any time later.</p>
               <label class="qswitch">
@@ -172,6 +181,19 @@
               <label class="qswitch">
                 <input type="checkbox" name="extras" value="binClean"><span class="qswitch-track"></span>
                 <span class="qswitch-copy"><strong>Clean out your waste bin</strong><small>Rinsed and deodorised</small></span>
+              </label>
+            </fieldset>
+
+            <fieldset class="qfield" data-mode="collect" hidden>
+              <legend>Do you need a caddy?</legend>
+              <p class="qhint">A 23-litre lockable bin that lives outside. Yours to keep — or use your own and skip the charge.</p>
+              <label class="qswitch">
+                <input type="checkbox" name="caddy" value="yes" checked><span class="qswitch-track"></span>
+                <span class="qswitch-copy"><strong>Supply me a caddy</strong><small>One-off £20, added to your first payment</small></span>
+              </label>
+              <label class="qswitch">
+                <input type="checkbox" name="extras" value="binClean"><span class="qswitch-track"></span>
+                <span class="qswitch-copy"><strong>Clean the caddy out each time</strong><small>Rinsed and deodorised on every swap</small></span>
               </label>
             </fieldset>
 
@@ -216,7 +238,7 @@
       <div class="section-head">
         <span class="eyebrow">Nearly there</span>
         <h2>Send it over and we’ll confirm</h2>
-        <p>Your quote is attached automatically. We reply to everything within one working day.</p>
+        <p>Your quote is attached automatically. We reply to everything by the end of the next working day.</p>
       </div>
 
       <form class="quote-panel" data-tt-form="quote" novalidate>
@@ -341,6 +363,12 @@
       <div class="note" style="margin-top:2rem">
         <strong>That’s the price.</strong> No call-out fee, no fuel surcharge, no minimum term.
       </div>
+
+      <div class="note note--sand" style="margin-top:1rem">
+        <strong>Pensioners and disabled customers.</strong> If getting out to the garden is genuinely
+        hard for you, mention it when you get in touch — we look after our older and disabled
+        customers, and we’d rather sort that quietly with you than make you fill in a form about it.
+      </div>
     </div>
   </section>
 
@@ -410,10 +438,12 @@
       <div class="footer-col">
         <h4>Service</h4>
         <ul>
-          <li><a href="services.html#regular">Regular clears</a></li>
-          <li><a href="services.html#oneoff">One-off clears</a></li>
-          <li><a href="services.html#commercial">Commercial</a></li>
-          <li><a href="services.html#extras">Add-ons</a></li>
+          <li><a href="services.html">Regular clears</a></li>
+          <li><a href="dog-waste-collection.html">You scoop, we collect</a></li>
+          <li><a href="one-off-garden-clear.html">One-off clears</a></li>
+          <li><a href="holiday-lets-and-landlords.html">Holiday lets &amp; landlords</a></li>
+          <li><a href="artificial-grass-cleaning.html">Artificial grass</a></li>
+          <li><a href="bin-cleaning.html">Bin cleaning</a></li>
           <li><a href="pricing.html">Pricing &amp; quote</a></li>
         </ul>
       </div>

@@ -264,6 +264,8 @@
       return el ? el.value : fallback;
     };
     return {
+      service: val('service', 'full'),
+      caddy: !!form.querySelector('[name="caddy"]:checked'),
       garden: val('garden', 'medium'),
       dogs: parseInt(val('dogs', 1), 10) || 1,
       dogSize: val('dogSize', 'medium'),
@@ -305,6 +307,12 @@
       const input = readQuoteForm(form);
       const q = ttQuote(input);
 
+      /* Only ask what the chosen service actually needs — a caddy collection
+         has no garden to measure and no backlog to price. */
+      $$('[data-mode]', scope).forEach(el => {
+        el.hidden = el.dataset.mode !== input.service;
+      });
+
       if (dogsOut) {
         const label = input.dogs === TT_RATES.maxDogs ? input.dogs + '+' : String(input.dogs);
         const firstNode = dogsOut.firstChild;
@@ -322,16 +330,24 @@
         linesEl.innerHTML = q.lines.map(l =>
           `<li${l.discount ? ' class="is-discount"' : ''}><span>${l.label}</span><span>${l.amount < 0 ? '−' : ''}${ttMoney(Math.abs(l.amount))}</span></li>`
         ).join('') +
-        `<li class="is-total"><span>${q.recurring ? 'Each visit' : 'Total'}</span><span>${ttMoney(q.perVisit)}</span></li>`;
+        `<li class="is-total"><span>${q.recurring ? (q.service === 'collect' ? 'Each collection' : 'Each visit') : 'Total'}</span><span>${ttMoney(q.perVisit)}</span></li>`;
       }
 
       if (firstEl) {
-        firstEl.innerHTML = q.firstVisitExtra > 0
-          ? `<div class="note note--sand small" style="margin-top:1rem">
+        if (q.firstVisitExtra <= 0) {
+          firstEl.innerHTML = '';
+        } else if (q.service === 'collect') {
+          firstEl.innerHTML = `<div class="note note--sand small" style="margin-top:1rem">
+               <strong>First payment is ${ttMoney(q.firstPayment)}</strong> — that includes the
+               ${ttMoney(q.firstVisitExtra)} caddy, which is yours to keep. Every collection after
+               that is ${ttMoney(q.perVisit)}.
+             </div>`;
+        } else {
+          firstEl.innerHTML = `<div class="note note--sand small" style="margin-top:1rem">
                <strong>First visit is ${ttMoney(q.firstPayment)}</strong> — that includes a one-off
                ${ttMoney(q.firstVisitExtra)} catch-up for the backlog. Every visit after that is ${ttMoney(q.perVisit)}.
-             </div>`
-          : '';
+             </div>`;
+        }
       }
 
       if (recapEl) {
@@ -409,21 +425,23 @@
   function initRateTable() {
     const body = $('[data-rate-table]');
     if (!body || typeof ttQuote !== 'function') return;
-    const cols = ['weekly', 'fortnightly', 'monthly'];
+    /* data-label lets the CSS restack these as rows on a phone instead of
+       forcing a sideways scroll through a four-column table. */
+    const cols = [['weekly', 'Weekly'], ['fortnightly', 'Fortnightly'], ['monthly', 'Monthly']];
     body.innerHTML = Object.keys(TT_RATES.garden).map(key => {
       const g = TT_RATES.garden[key];
-      const cells = cols.map(f => {
+      const cells = cols.map(([f, label]) => {
         const q = ttQuote({ garden: key, dogs: 1, dogSize: 'medium', frequency: f, backlog: 'current', extras: [] });
-        return `<td class="num">${ttMoney(q.perVisit)}<span class="muted small"> /visit</span></td>`;
+        return `<td class="num" data-label="${label}">${ttMoney(q.perVisit)}<span class="muted small"> /visit</span></td>`;
       }).join('');
-      return `<tr><td>${g.label}<span class="muted small" style="display:block;font-weight:400">${g.desc}</span></td>${cells}</tr>`;
+      return `<tr><th scope="row">${g.label}<span class="muted small" style="display:block;font-weight:400">${g.desc}</span></th>${cells}</tr>`;
     }).join('');
 
     const extras = $('[data-extras-table]');
     if (extras) {
       extras.innerHTML = Object.keys(TT_RATES.extras).map(k => {
         const x = TT_RATES.extras[k];
-        return `<tr><td>${x.label}<span class="muted small" style="display:block;font-weight:400">${x.desc}</span></td><td class="num">+${ttMoney(x.price)}<span class="muted small"> /visit</span></td></tr>`;
+        return `<tr><th scope="row">${x.label}<span class="muted small" style="display:block;font-weight:400">${x.desc}</span></th><td class="num" data-label="Per visit">+${ttMoney(x.price)}</td></tr>`;
       }).join('');
     }
   }
@@ -438,7 +456,7 @@
     const host = $('[data-coverage="core"]');
     if (host && cov.core) {
       host.innerHTML = Object.keys(cov.core).map(code =>
-        `<tr><td>${code}</td><td>${cov.core[code]}</td></tr>`
+        `<tr><th scope="row">${code}</th><td data-label="Covers">${cov.core[code]}</td></tr>`
       ).join('');
     }
 
@@ -446,7 +464,7 @@
     const sched = $('[data-rounds]');
     if (sched) {
       sched.innerHTML = ROUNDS.map(r =>
-        `<tr><td>${r.day}</td><td>${r.areas.join(', ')}</td></tr>`
+        `<tr><th scope="row">${r.day}</th><td data-label="Where we are">${r.areas.join(', ')}</td></tr>`
       ).join('');
     }
 
